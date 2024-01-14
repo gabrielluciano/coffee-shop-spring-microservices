@@ -1,6 +1,9 @@
 package com.gabrielluciano.productservice.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -24,10 +27,20 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Long id;
+
     @Column(length = 70, unique = true, nullable = false)
+    @NotNull
+    @Size(min = 1, max = 70)
     private String name;
+
+    @Size(max = 255)
     private String description;
+
     @Column(precision = 10, scale = 2)
+    @Positive
+    @NotNull
     private BigDecimal price;
-    private boolean isAvailable;
+
+    @NotNull
+    private Boolean isAvailable;
 }

@@ -14,15 +14,15 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private boolean isAvailable;
+    private Boolean isAvailable;
 
     public static ProductResponse fromProduct(Product product) {
-       return ProductResponse.builder()
-               .id(product.getId())
-               .name(product.getName())
-               .description(product.getDescription())
-               .price(product.getPrice())
-               .isAvailable(product.isAvailable())
-               .build();
+        return ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .isAvailable(product.getIsAvailable())
+                .build();
     }
 }

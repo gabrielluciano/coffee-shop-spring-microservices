@@ -2,7 +2,7 @@ package com.gabrielluciano.productservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabrielluciano.productservice.dto.ProductCreateRequest;
-import com.gabrielluciano.productservice.models.Product;
+import com.gabrielluciano.productservice.model.Product;
 import com.gabrielluciano.productservice.repository.ProductRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

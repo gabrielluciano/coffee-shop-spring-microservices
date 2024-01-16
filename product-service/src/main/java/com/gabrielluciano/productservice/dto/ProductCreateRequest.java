@@ -1,6 +1,6 @@
 package com.gabrielluciano.productservice.dto;
 
-import com.gabrielluciano.productservice.models.Product;
+import com.gabrielluciano.productservice.model.Product;
 import lombok.Builder;
 import lombok.Data;
 

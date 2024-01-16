@@ -3,7 +3,7 @@ package com.gabrielluciano.productservice.service;
 import com.gabrielluciano.productservice.dto.ProductCreateRequest;
 import com.gabrielluciano.productservice.dto.ProductResponse;
 import com.gabrielluciano.productservice.exception.ProductNotFoundException;
-import com.gabrielluciano.productservice.models.Product;
+import com.gabrielluciano.productservice.model.Product;
 import com.gabrielluciano.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package com.gabrielluciano.productservice.repository;
 
-import com.gabrielluciano.productservice.models.Product;
+import com.gabrielluciano.productservice.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

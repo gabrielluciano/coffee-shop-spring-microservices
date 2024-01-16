@@ -1,4 +1,4 @@
-package com.gabrielluciano.productservice.models;
+package com.gabrielluciano.productservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

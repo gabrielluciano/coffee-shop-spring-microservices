@@ -255,6 +255,38 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.path").value("/api/v1/products"));
     }
 
+    @Test
+    void shouldFindProductById() throws Exception {
+        Product product = Product.builder()
+                .name("Espresso")
+                .description("Strong and concentrated coffee")
+                .price(BigDecimal.valueOf(2.99))
+                .isAvailable(true)
+                .build();
+
+        product = productRepository.save(product);
+
+        mockMvc.perform(get("/api/v1/products/" + product.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(product.getName()))
+                .andExpect(jsonPath("$.description").value(product.getDescription()));
+    }
+
+    @Test
+    void shouldReturn404WhenProductIsNotFound() throws Exception {
+        mockMvc.perform(get("/api/v1/products/1"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturn404WhenIdIsNotANumber() throws Exception {
+        mockMvc.perform(get("/api/v1/products/notANumber"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
     static String asJsonString(final Object object) throws Exception {
         return new ObjectMapper().writeValueAsString(object);
     }

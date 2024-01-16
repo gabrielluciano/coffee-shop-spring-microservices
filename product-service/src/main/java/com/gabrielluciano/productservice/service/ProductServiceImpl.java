@@ -2,6 +2,7 @@ package com.gabrielluciano.productservice.service;
 
 import com.gabrielluciano.productservice.dto.ProductCreateRequest;
 import com.gabrielluciano.productservice.dto.ProductResponse;
+import com.gabrielluciano.productservice.exception.ProductNotFoundException;
 import com.gabrielluciano.productservice.models.Product;
 import com.gabrielluciano.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,12 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
         Product product = productRepository.save(productCreateRequest.toProduct());
         return ProductResponse.fromProduct(product);
+    }
+
+    @Override
+    public ProductResponse getProduct(Long id) {
+        return productRepository.findById(id)
+                .map(ProductResponse::fromProduct)
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 }

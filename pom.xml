@@ -19,7 +19,8 @@
 
 	<modules>
 		<module>product-service</module>
-	</modules>
+        <module>cart-service</module>
+    </modules>
 
 	<properties>
 		<java.version>17</java.version>

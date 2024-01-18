@@ -7,6 +7,7 @@ import com.gabrielluciano.productservice.model.Product;
 import com.gabrielluciano.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
         Product product = productRepository.save(productCreateRequest.toProduct());
         return ProductResponse.fromProduct(product);

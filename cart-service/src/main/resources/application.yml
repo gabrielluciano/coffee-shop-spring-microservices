@@ -1,0 +1,6 @@
+server:
+  port: 8081
+spring:
+  data:
+    mongodb:
+      uri: ${DATABASE_URI:mongodb://admin:password@127.0.0.1:27017/cartservice?authSource=admin}

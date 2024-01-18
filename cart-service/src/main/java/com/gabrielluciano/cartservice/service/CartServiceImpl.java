@@ -2,11 +2,13 @@ package com.gabrielluciano.cartservice.service;
 
 import com.gabrielluciano.cartservice.dto.CartRequest;
 import com.gabrielluciano.cartservice.dto.CartResponse;
+import com.gabrielluciano.cartservice.exception.ProductNotFoundException;
 import com.gabrielluciano.cartservice.model.Cart;
 import com.gabrielluciano.cartservice.model.CartItem;
 import com.gabrielluciano.cartservice.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,11 +18,21 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final ProductService productService;
 
     @Override
+    @Transactional
     public CartResponse addItem(CartRequest cartRequest) {
+        Long productId = cartRequest.getProductId();
+        if (productDoesNotExist(productId))
+            throw new ProductNotFoundException(productId);
+
         Cart savedCart = createOrUpdateCartFromCartRequest(cartRequest);
         return CartResponse.fromCart(savedCart);
+    }
+
+    private boolean productDoesNotExist(Long productId) {
+        return !productService.productExists(productId);
     }
 
     private Cart createOrUpdateCartFromCartRequest(CartRequest cartRequest) {
@@ -74,7 +86,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private void increaseCartItemQuantity(CartItem cartItem, Integer quantity) {
-       cartItem.increaseQuantityBy(quantity);
+        cartItem.increaseQuantityBy(quantity);
     }
 
     private void createCartItemFromCartRequestAndAddToCart(CartRequest cartRequest, Cart cart) {

@@ -3,13 +3,17 @@ package com.gabrielluciano.cartservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabrielluciano.cartservice.dto.CartRequest;
 import com.gabrielluciano.cartservice.repository.CartRepository;
+import com.gabrielluciano.cartservice.service.ProductService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -45,12 +49,18 @@ class CartControllerTest {
     @Autowired
     private CartRepository cartRepository;
 
+    @MockBean
+    private ProductService productService;
+
     @Autowired
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         cartRepository.deleteAll();
+
+        BDDMockito.when(productService.productExists(ArgumentMatchers.anyLong()))
+                .thenReturn(true);
     }
 
     @Test
@@ -118,6 +128,24 @@ class CartControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(cartRequest1.getUserId()))
                 .andExpect(jsonPath("$.items[0].length()").value(2));
+    }
+
+    @Test
+    void shouldReturn404WhenProductIsNotFound() throws Exception {
+        BDDMockito.when(productService.productExists(ArgumentMatchers.anyLong()))
+                .thenReturn(false);
+
+        CartRequest cartRequest = CartRequest.builder()
+                .userId(1L)
+                .productId(1L)
+                .quantity(2)
+                .build();
+
+        mockMvc.perform(post("/api/v1/cart/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(cartRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     static String asJsonString(final Object object) throws Exception {

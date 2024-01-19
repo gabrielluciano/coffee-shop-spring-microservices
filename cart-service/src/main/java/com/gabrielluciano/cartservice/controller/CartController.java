@@ -17,4 +17,9 @@ public class CartController {
     public CartResponse addItem(@RequestBody CartRequest cartRequest) {
         return cartService.addItem(cartRequest);
     }
+
+    @GetMapping("/{userId}")
+    public CartResponse getCart(@PathVariable Long userId) {
+       return cartService.getCart(userId);
+    }
 }

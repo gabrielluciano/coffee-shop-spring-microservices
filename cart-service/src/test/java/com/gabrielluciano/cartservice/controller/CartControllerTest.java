@@ -2,6 +2,8 @@ package com.gabrielluciano.cartservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabrielluciano.cartservice.dto.CartRequest;
+import com.gabrielluciano.cartservice.model.Cart;
+import com.gabrielluciano.cartservice.model.CartItem;
 import com.gabrielluciano.cartservice.repository.CartRepository;
 import com.gabrielluciano.cartservice.service.ProductService;
 import org.junit.jupiter.api.AfterAll;
@@ -20,6 +22,9 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.MongoDBContainer;
 
+import java.util.List;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -144,6 +149,31 @@ class CartControllerTest {
         mockMvc.perform(post("/api/v1/cart/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(cartRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldFindCartByUserId() throws Exception {
+        Long userId = 10L;
+        CartItem cartItem = CartItem.fromProductIdAndQuantity(1L, 2);
+        Cart cart = Cart.builder()
+                .userId(userId)
+                .items(List.of(cartItem))
+                .build();
+
+        cartRepository.save(cart);
+
+        mockMvc.perform(get("/api/v1/cart/" + userId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(userId))
+                .andExpect(jsonPath("$.items[0].productId").value(cartItem.getProductId()));
+    }
+
+    @Test
+    void shouldReturn404WhenCartIsNotFound() throws Exception {
+        mockMvc.perform(get("/api/v1/cart/10"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }

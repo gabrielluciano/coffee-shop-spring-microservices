@@ -2,6 +2,7 @@ package com.gabrielluciano.cartservice.service;
 
 import com.gabrielluciano.cartservice.dto.CartRequest;
 import com.gabrielluciano.cartservice.dto.CartResponse;
+import com.gabrielluciano.cartservice.exception.CartNotFoundException;
 import com.gabrielluciano.cartservice.exception.ProductNotFoundException;
 import com.gabrielluciano.cartservice.model.Cart;
 import com.gabrielluciano.cartservice.model.CartItem;
@@ -29,6 +30,14 @@ public class CartServiceImpl implements CartService {
 
         Cart savedCart = createOrUpdateCartFromCartRequest(cartRequest);
         return CartResponse.fromCart(savedCart);
+    }
+
+    @Override
+    public CartResponse getCart(Long userId) {
+        Optional<Cart> optionalCart = findCartByUserId(userId);
+        return optionalCart
+                .map(CartResponse::fromCart)
+                .orElseThrow(() -> new CartNotFoundException(userId));
     }
 
     private boolean productDoesNotExist(Long productId) {

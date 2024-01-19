@@ -6,4 +6,6 @@ import com.gabrielluciano.cartservice.dto.CartResponse;
 public interface CartService {
 
     CartResponse addItem(CartRequest cartRequest);
+
+    CartResponse getCart(Long userId);
 }

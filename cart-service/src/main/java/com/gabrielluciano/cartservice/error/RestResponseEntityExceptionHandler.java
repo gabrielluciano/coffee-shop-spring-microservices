@@ -1,6 +1,8 @@
 package com.gabrielluciano.cartservice.error;
 
+import com.gabrielluciano.cartservice.exception.CartNotFoundException;
 import com.gabrielluciano.cartservice.exception.ProductNotFoundException;
+import com.gabrielluciano.cartservice.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,9 +20,9 @@ import java.time.ZoneOffset;
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    protected ResponseEntity<ErrorResponse> handleProductNotFoundException(
-            ProductNotFoundException ex, HttpServletRequest request) {
+    @ExceptionHandler({ProductNotFoundException.class, CartNotFoundException.class})
+    protected ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+            ResourceNotFoundException ex, HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ErrorResponse.builder()

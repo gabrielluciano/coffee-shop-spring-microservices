@@ -4,6 +4,7 @@ import com.gabrielluciano.cartservice.dto.CartRequest;
 import com.gabrielluciano.cartservice.dto.CartResponse;
 import com.gabrielluciano.cartservice.service.CartService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,5 +22,11 @@ public class CartController {
     @GetMapping("/{userId}")
     public CartResponse getCart(@PathVariable Long userId) {
        return cartService.getCart(userId);
+    }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearCart(@PathVariable Long userId) {
+        cartService.clearCart(userId);
     }
 }

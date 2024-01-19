@@ -23,9 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.MongoDBContainer;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -176,6 +177,25 @@ class CartControllerTest {
         mockMvc.perform(get("/api/v1/cart/10"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldClearCart() throws Exception {
+        Long userId = 10L;
+        CartItem cartItem = CartItem.fromProductIdAndQuantity(1L, 2);
+        Cart cart = Cart.builder()
+                .userId(userId)
+                .items(List.of(cartItem))
+                .build();
+
+        cartRepository.save(cart);
+
+        mockMvc.perform(delete("/api/v1/cart/" + userId))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        Optional<Cart> optionalCart = cartRepository.findByUserIdAndDeletedAtIsNull(userId);
+        assertTrue(optionalCart.isEmpty());
     }
 
     static String asJsonString(final Object object) throws Exception {

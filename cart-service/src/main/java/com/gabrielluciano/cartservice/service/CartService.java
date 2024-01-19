@@ -8,4 +8,6 @@ public interface CartService {
     CartResponse addItem(CartRequest cartRequest);
 
     CartResponse getCart(Long userId);
+
+    void clearCart(Long userId);
 }

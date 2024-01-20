@@ -20,11 +20,13 @@
 	<modules>
 		<module>product-service</module>
         <module>cart-service</module>
+        <module>discovery-server</module>
     </modules>
 
 	<properties>
 		<java.version>17</java.version>
 		<testcontainers.version>1.19.3</testcontainers.version>
+		<spring-cloud-starter.version>2023.0.0</spring-cloud-starter.version>
 	</properties>
 
 	<dependencies>
@@ -49,6 +51,18 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-parent</artifactId>
+				<version>${spring-cloud-starter.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>

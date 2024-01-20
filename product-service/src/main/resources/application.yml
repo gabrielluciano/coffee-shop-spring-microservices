@@ -1,6 +1,9 @@
 server:
-  port: 8080
+  port: 0
 spring:
+  application:
+    name: product-service
+    instance_id: ${random.uuid}
   jpa:
     hibernate:
       ddl-auto: none
@@ -11,3 +14,7 @@ spring:
   sql:
     init:
       mode: always
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}

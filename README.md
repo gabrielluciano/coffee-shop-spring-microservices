@@ -6,15 +6,15 @@ TODO: write description
 
 ### Product Service
 
-- [ ] As a user, I want to browse the menu to view the list of available coffee products, including its price and description
+- [X] As a guest, I want to browse the menu to view the list of available coffee products, including its price and description
 
 ### Cart Service
 
-- [ ] As a user, I want to add a coffee product to my cart 
+- [X] As a user, I want to add a coffee product to my cart 
 
-- [ ] As a user, I want to see the total cost of items in my cart
+- [X] As a user, I want to see the items in my cart
 
-- [ ] As a user, I want to clear the items in my cart
+- [X] As a user, I want to clear the items in my cart
 
 ### Order Service
 

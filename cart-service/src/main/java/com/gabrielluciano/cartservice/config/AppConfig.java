@@ -1,5 +1,6 @@
 package com.gabrielluciano.cartservice.config;
 
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -8,7 +9,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class AppConfig {
 
     @Bean
-    public WebClient webClient() {
-        return WebClient.create("http://localhost:8080/api/v1");
+    @LoadBalanced
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
     }
 }

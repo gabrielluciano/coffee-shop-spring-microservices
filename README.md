@@ -32,7 +32,7 @@ TODO: write description
 
 ### User Service
 
-- [ ] As a guest, I want to create an account using username, email and password
+- [ ] As a guest, I want to create an account using name, email and password
 
 - [ ] As a guest, I want to log in to my account 
  

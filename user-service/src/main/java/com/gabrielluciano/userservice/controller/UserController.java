@@ -3,6 +3,7 @@ package com.gabrielluciano.userservice.controller;
 import com.gabrielluciano.userservice.dto.SignupRequest;
 import com.gabrielluciano.userservice.dto.UserResponse;
 import com.gabrielluciano.userservice.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse signup(@RequestBody SignupRequest signupRequest) {
+    public UserResponse signup(@Valid @RequestBody SignupRequest signupRequest) {
         return userService.signup(signupRequest);
     }
 }

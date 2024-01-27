@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,5 +60,18 @@ public class Client {
                 .scopes(scopes -> scopes.addAll(client.getScopes().stream().map(OAuthScope::getValue)
                         .collect(Collectors.toSet())))
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Client client = (Client) object;
+        return Objects.equals(id, client.id) && Objects.equals(clientId, client.clientId) && Objects.equals(secret, client.secret) && Objects.equals(authMethods, client.authMethods) && Objects.equals(grantTypes, client.grantTypes) && Objects.equals(scopes, client.scopes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, clientId, secret, authMethods, grantTypes, scopes);
     }
 }

@@ -3,6 +3,7 @@ package com.gabrielluciano.authorizationserver.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,5 +34,18 @@ public class UserCredentials {
 
     public Boolean isEnabled() {
         return enabled;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        UserCredentials that = (UserCredentials) object;
+        return Objects.equals(id, that.id) && Objects.equals(email, that.email) && Objects.equals(password, that.password) && Objects.equals(roles, that.roles) && Objects.equals(enabled, that.enabled);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password, roles, enabled);
     }
 }

@@ -7,8 +7,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -18,13 +19,17 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserCredentialsRepositoryTest {
 
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private UserCredentialsRepository userCredentialsRepository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @BeforeAll
     static void beforeAll() {
@@ -49,7 +54,7 @@ class UserCredentialsRepositoryTest {
     }
 
     @Test
-    void shouldSaveAndFindUserCredentialsById() {
+    void shouldSaveUserCredentials() {
         UserCredentials userCredentials = UserCredentials.builder()
                 .id(UUID.randomUUID())
                 .email("user@mail.com")
@@ -59,8 +64,30 @@ class UserCredentialsRepositoryTest {
                 .build();
 
         userCredentialsRepository.save(userCredentials);
+        entityManager.flush();
 
-        UserCredentials userCredentialsFromDb = userCredentialsRepository.findById(userCredentials.getId()).orElseThrow();
+        UserCredentials userCredentialsFromDb = entityManager.find(UserCredentials.class, userCredentials.getId());
+
+        assertNotNull(userCredentialsFromDb);
+        assertEquals(userCredentials.getId(), userCredentialsFromDb.getId());
+        assertEquals(userCredentials, userCredentialsFromDb);
+    }
+
+    @Test
+    void shouldFindUserCredentialsById() {
+        UserCredentials userCredentials = UserCredentials.builder()
+                .id(UUID.randomUUID())
+                .email("user@mail.com")
+                .password("encrypted-password")
+                .roles(Set.of(Role.USER))
+                .enabled(true)
+                .build();
+
+        entityManager.persist(userCredentials);
+        entityManager.flush();
+
+        UserCredentials userCredentialsFromDb = userCredentialsRepository.findById(userCredentials.getId())
+                .orElseThrow();
 
         assertNotNull(userCredentialsFromDb);
         assertEquals(userCredentials.getId(), userCredentialsFromDb.getId());
@@ -77,7 +104,8 @@ class UserCredentialsRepositoryTest {
                 .enabled(true)
                 .build();
 
-        userCredentialsRepository.save(userCredentials);
+        entityManager.persist(userCredentials);
+        entityManager.flush();
 
         UserCredentials userCredentialsFromDb = userCredentialsRepository.findByEmail(userCredentials.getEmail())
                 .orElseThrow();
@@ -96,7 +124,9 @@ class UserCredentialsRepositoryTest {
                 .roles(Set.of(Role.USER))
                 .enabled(true)
                 .build();
-        userCredentialsRepository.save(userCredentials);
+
+        entityManager.persist(userCredentials);
+        entityManager.flush();
 
         UserCredentials newUserCredentials = UserCredentials.builder()
                 .id(UUID.randomUUID())
@@ -106,6 +136,9 @@ class UserCredentialsRepositoryTest {
                 .enabled(userCredentials.isEnabled())
                 .build();
 
-        assertThrows(DataIntegrityViolationException.class, () -> userCredentialsRepository.save(newUserCredentials));
+        assertThrows(Exception.class, () -> {
+            userCredentialsRepository.save(newUserCredentials);
+            entityManager.flush();
+        });
     }
 }

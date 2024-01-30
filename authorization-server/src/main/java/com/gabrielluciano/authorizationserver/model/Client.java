@@ -11,15 +11,11 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "clients")
-@SequenceGenerator(
-        name = Client.SEQUENCE_NAME,
-        sequenceName = Client.SEQUENCE_NAME,
-        allocationSize = 1
-)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -27,17 +23,19 @@ import java.util.stream.Collectors;
 @Builder
 public class Client {
 
-    public static final String SEQUENCE_NAME = "clients_id_seq";
-
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
-    private Long id;
+    private UUID id;
 
     @Column(unique = true, nullable = false)
     private String clientId;
 
     @Column(nullable = false)
     private String secret;
+
+    @ElementCollection
+    @CollectionTable(name = "clients_redirect_uris", joinColumns = @JoinColumn(name = "client_id"))
+    @Column(name = "redirect_uri", length = 1000)
+    private Set<String> redirectUris;
 
     @Column(nullable = false)
     @Convert(converter = ClientAuthenticationMethodSetConverter.class)
@@ -52,9 +50,10 @@ public class Client {
     private Set<OAuthScope> scopes;
 
     public static RegisteredClient toRegisteredClient(Client client) {
-        return RegisteredClient.withId(String.valueOf(client.getId()))
+        return RegisteredClient.withId(client.getId().toString())
                 .clientId(client.getClientId())
                 .clientSecret(client.getSecret())
+                .redirectUris(uris -> uris.addAll(client.getRedirectUris()))
                 .clientAuthenticationMethods(methods -> methods.addAll(client.getAuthMethods()))
                 .authorizationGrantTypes(types -> types.addAll(client.getGrantTypes()))
                 .scopes(scopes -> scopes.addAll(client.getScopes().stream().map(OAuthScope::getValue)

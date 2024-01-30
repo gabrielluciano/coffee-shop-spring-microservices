@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,8 +24,10 @@ public class CustomClientService implements RegisteredClientRepository {
     @Override
     public void save(RegisteredClient registeredClient) {
         Client client = Client.builder()
+                .id(UUID.randomUUID())
                 .clientId(registeredClient.getClientId())
                 .secret(passwordEncoder.encode(registeredClient.getClientSecret()))
+                .redirectUris(registeredClient.getRedirectUris())
                 .authMethods(registeredClient.getClientAuthenticationMethods())
                 .grantTypes(registeredClient.getAuthorizationGrantTypes())
                 .scopes(registeredClient.getScopes().stream().map(OAuthScope::new)

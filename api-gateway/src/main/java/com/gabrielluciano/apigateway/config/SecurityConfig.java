@@ -18,7 +18,10 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http.csrf(csrf -> csrf.disable());
         http.oauth2ResourceServer(server -> server
-                .jwt(jwt -> jwt.jwkSetUri(jwksUri))
+                .jwt(jwt -> jwt
+                        .jwkSetUri(jwksUri)
+                        .jwtAuthenticationConverter(new CustomJwtAuthenticationTokenConverter())
+                )
         );
         http.authorizeExchange(exchange -> exchange
                 .pathMatchers("/eureka/**").permitAll()

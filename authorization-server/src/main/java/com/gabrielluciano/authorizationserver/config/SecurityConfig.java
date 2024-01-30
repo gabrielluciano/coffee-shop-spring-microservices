@@ -51,22 +51,12 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain registrationSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(
-                                "/api/v1/user/register",
-                                "/api/v1/user/register/"
-                        ).permitAll())
-                .build();
-    }
-
-    @Bean
-    @Order(3)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/api/v1/user/register").permitAll()
+                        .requestMatchers("/api/v1/user/register/").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 .build();

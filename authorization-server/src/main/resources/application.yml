@@ -1,8 +1,8 @@
 server:
-  port: 0
+  port: 8083
 spring:
   application:
-    name: authorization_server
+    name: authorization-server
     instance_id: ${random.uuid}
   jpa:
     hibernate:
@@ -19,6 +19,6 @@ eureka:
     serviceUrl:
       defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
 
-# logging:
+#logging:
 #  level:
 #    org.springframework.security: TRACE

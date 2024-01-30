@@ -30,9 +30,9 @@ TODO: write description
 
 - [ ] As a user, I want to receive a confirmation when my order is ready
 
-### User Service
+### Authorization Server
 
-- [ ] As a guest, I want to create an account using name, email and password
+- [X] As a guest, I want to create an account using name, email and password
 
-- [ ] As a guest, I want to log in to my account 
+- [X] As a guest, I want to log in to my account 
  

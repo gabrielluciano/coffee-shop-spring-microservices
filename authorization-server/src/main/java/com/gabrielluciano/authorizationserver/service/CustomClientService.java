@@ -39,7 +39,7 @@ public class CustomClientService implements RegisteredClientRepository {
 
     @Override
     public RegisteredClient findById(String id) {
-        Client client = repository.findById(Long.parseLong(id)).orElseThrow();
+        Client client = repository.findById(UUID.fromString(id)).orElseThrow();
         return Client.toRegisteredClient(client);
     }
 

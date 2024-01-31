@@ -18,6 +18,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,6 +59,7 @@ class ClientRepositoryTest {
     @Test
     void shouldSaveClient() {
         Client client = Client.builder()
+                .id(UUID.randomUUID())
                 .clientId("some-client")
                 .secret("encrypted-secret")
                 .scopes(Set.of(new OAuthScope(OidcScopes.OPENID), new OAuthScope(OidcScopes.EMAIL)))
@@ -78,6 +80,7 @@ class ClientRepositoryTest {
     @Test
     void shouldFindClientById() {
         Client client = Client.builder()
+                .id(UUID.randomUUID())
                 .clientId("some-client")
                 .secret("encrypted-secret")
                 .scopes(Set.of(new OAuthScope(OidcScopes.OPENID), new OAuthScope(OidcScopes.EMAIL)))
@@ -97,6 +100,7 @@ class ClientRepositoryTest {
     @Test
     void shouldFindClientByClientId() {
         Client client = Client.builder()
+                .id(UUID.randomUUID())
                 .clientId("some-client")
                 .secret("encrypted-secret")
                 .scopes(Set.of(new OAuthScope(OidcScopes.OPENID), new OAuthScope(OidcScopes.EMAIL)))
@@ -116,6 +120,7 @@ class ClientRepositoryTest {
     @Test
     void shouldNotAllowDuplicatedClientIds() {
         Client client = Client.builder()
+                .id(UUID.randomUUID())
                 .clientId("some-client")
                 .secret("encrypted-secret")
                 .scopes(Set.of(new OAuthScope(OidcScopes.OPENID), new OAuthScope(OidcScopes.EMAIL)))
@@ -126,6 +131,7 @@ class ClientRepositoryTest {
         entityManager.persist(client);
 
         Client newClient = Client.builder()
+                .id(UUID.randomUUID())
                 .clientId(client.getClientId())
                 .secret(client.getSecret())
                 .scopes(client.getScopes())

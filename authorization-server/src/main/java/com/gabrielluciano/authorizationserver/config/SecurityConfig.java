@@ -59,8 +59,8 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/v1/user/register").permitAll()
-                        .requestMatchers("/api/v1/user/register/").permitAll()
+                        .requestMatchers("/register").permitAll()
+                        .requestMatchers("/register/").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
                 .build();

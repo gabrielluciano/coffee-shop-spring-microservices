@@ -17,7 +17,7 @@ public class UserCredentialsController {
 
     private final UserCredentialsService userCredentialsService;
 
-    @PostMapping("api/v1/user/register")
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserRegistrationResponse registerUser(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
         return userCredentialsService.registerUser(userRegistrationRequest);

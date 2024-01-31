@@ -66,7 +66,7 @@ class UserCredentialsControllerTest {
                 .password("Passw0rd!")
                 .build();
 
-        mockMvc.perform(post("/api/v1/user/register")
+        mockMvc.perform(post("/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userRegistrationRequest)))
                 .andDo(print())
@@ -85,17 +85,17 @@ class UserCredentialsControllerTest {
                 .password("Passw0rd!")
                 .build();
 
-        mockMvc.perform(post("/api/v1/user/register")
+        mockMvc.perform(post("/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userRegistrationRequest)))
                 .andDo(print());
 
-        mockMvc.perform(post("/api/v1/user/register")
+        mockMvc.perform(post("/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userRegistrationRequest)))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.path").value("/api/v1/user/register"));
+                .andExpect(jsonPath("$.path").value("/register"));
     }
 
     @Test
@@ -178,13 +178,13 @@ class UserCredentialsControllerTest {
     private void performUserRegistrationRequestAndExpect400ErrorWithErrorMessageContaining(
             UserRegistrationRequest userRegistrationRequest, String expectedValue) throws Exception {
 
-        mockMvc.perform(post("/api/v1/user/register")
+        mockMvc.perform(post("/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userRegistrationRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.path").value("/api/v1/user/register"))
+                .andExpect(jsonPath("$.path").value("/register"))
                 .andExpect(jsonPath("$.error", containsString(expectedValue)));
     }
 

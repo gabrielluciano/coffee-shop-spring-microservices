@@ -19,6 +19,8 @@ spring:
           uri: lb://cart-service
           predicates:
             - Path=/api/v1/cart/**
+          filters:
+            - TokenRelay=
         - id: discovery-server
           uri: http://localhost:8761
           predicates:

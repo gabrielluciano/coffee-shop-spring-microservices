@@ -1,5 +1,6 @@
 package com.gabrielluciano.apigateway.config;
 
+import com.gabrielluciano.apigateway.model.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class SecurityConfig {
         );
         http.authorizeExchange(exchange -> exchange
                 .pathMatchers("/eureka/**").permitAll()
+                .pathMatchers("/api/v1/cart/**").hasRole(Role.USER.name())
                 .anyExchange().authenticated()
         );
         return http.build();

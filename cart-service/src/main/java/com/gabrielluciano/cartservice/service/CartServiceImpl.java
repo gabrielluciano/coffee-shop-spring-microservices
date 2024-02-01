@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartResponse getCart(Long userId) {
+    public CartResponse getCart(UUID userId) {
         Optional<Cart> optionalCart = findCartByUserId(userId);
         return optionalCart
                 .map(CartResponse::fromCart)
@@ -43,7 +44,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void clearCart(Long userId) {
+    public void clearCart(UUID userId) {
         findCartByUserId(userId).ifPresent(cart -> {
             cart.setDeletedAt(LocalDateTime.now(ZoneOffset.UTC));
             cartRepository.save(cart);
@@ -62,7 +63,7 @@ public class CartServiceImpl implements CartService {
                 .orElseGet(() -> createAndSaveCart(cartRequest));
     }
 
-    private Optional<Cart> findCartByUserId(Long userId) {
+    private Optional<Cart> findCartByUserId(UUID userId) {
         return cartRepository.findByUserIdAndDeletedAtIsNull(userId);
     }
 

@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
@@ -20,13 +22,13 @@ public class CartController {
     }
 
     @GetMapping("/{userId}")
-    public CartResponse getCart(@PathVariable Long userId) {
+    public CartResponse getCart(@PathVariable UUID userId) {
        return cartService.getCart(userId);
     }
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearCart(@PathVariable Long userId) {
+    public void clearCart(@PathVariable UUID userId) {
         cartService.clearCart(userId);
     }
 }

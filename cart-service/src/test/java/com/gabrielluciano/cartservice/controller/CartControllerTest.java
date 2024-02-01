@@ -24,6 +24,7 @@ import org.testcontainers.containers.MongoDBContainer;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -72,7 +73,7 @@ class CartControllerTest {
     @Test
     void shouldAddItemToCart() throws Exception {
         CartRequest cartRequest = CartRequest.builder()
-                .userId(1L)
+                .userId(UUID.randomUUID())
                 .productId(1L)
                 .quantity(2)
                 .build();
@@ -90,7 +91,7 @@ class CartControllerTest {
     @Test
     void shouldIncreaseItemQuantity() throws Exception {
         CartRequest cartRequest = CartRequest.builder()
-                .userId(1L)
+                .userId(UUID.randomUUID())
                 .productId(1L)
                 .quantity(2)
                 .build();
@@ -112,13 +113,13 @@ class CartControllerTest {
     @Test
     void shouldHaveTwoItems() throws Exception {
         CartRequest cartRequest1 = CartRequest.builder()
-                .userId(1L)
+                .userId(UUID.randomUUID())
                 .productId(1L)
                 .quantity(2)
                 .build();
 
         CartRequest cartRequest2 = CartRequest.builder()
-                .userId(1L)
+                .userId(UUID.randomUUID())
                 .productId(2L)
                 .quantity(3)
                 .build();
@@ -142,7 +143,7 @@ class CartControllerTest {
                 .thenReturn(false);
 
         CartRequest cartRequest = CartRequest.builder()
-                .userId(1L)
+                .userId(UUID.randomUUID())
                 .productId(1L)
                 .quantity(2)
                 .build();
@@ -156,7 +157,7 @@ class CartControllerTest {
 
     @Test
     void shouldFindCartByUserId() throws Exception {
-        Long userId = 10L;
+        UUID userId = UUID.randomUUID();
         CartItem cartItem = CartItem.fromProductIdAndQuantity(1L, 2);
         Cart cart = Cart.builder()
                 .userId(userId)
@@ -181,7 +182,7 @@ class CartControllerTest {
 
     @Test
     void shouldClearCart() throws Exception {
-        Long userId = 10L;
+        UUID userId = UUID.randomUUID();
         CartItem cartItem = CartItem.fromProductIdAndQuantity(1L, 2);
         Cart cart = Cart.builder()
                 .userId(userId)

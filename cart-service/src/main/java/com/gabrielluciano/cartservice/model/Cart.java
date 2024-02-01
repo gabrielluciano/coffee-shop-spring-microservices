@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class Cart {
 
     @Id
     private String id;
-    private Long userId;
+    private UUID userId;
     private List<CartItem> items;
     private LocalDateTime deletedAt;
 

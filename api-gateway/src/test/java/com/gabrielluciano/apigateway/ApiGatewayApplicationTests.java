@@ -5,6 +5,7 @@ import com.gabrielluciano.apigateway.controller.DiscoveryServerCompatibleControl
 import com.gabrielluciano.apigateway.controller.ProductServiceCompatibleController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -13,20 +14,30 @@ import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;
 import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClients;
 import org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier;
 import org.springframework.cloud.loadbalancer.support.ServiceInstanceListSuppliers;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 @SpringBootTest(classes = {ApiGatewayApplicationTests.TestConfig.class}, webEnvironment = RANDOM_PORT,
         properties = {"eureka.client.enabled=false"})
+@ContextConfiguration
 class ApiGatewayApplicationTests {
+
+    @Autowired
+    ApplicationContext context;
 
     @LocalServerPort
     private int port;
@@ -36,7 +47,9 @@ class ApiGatewayApplicationTests {
     @BeforeEach
     void setUp() {
         String baseUri = "http://localhost:" + port;
-        this.webClient = WebTestClient.bindToServer()
+        this.webClient = WebTestClient.bindToApplicationContext(context)
+                .apply(springSecurity())
+                .configureClient()
                 .responseTimeout(Duration.ofSeconds(10))
                 .baseUrl(baseUri)
                 .build();
@@ -64,11 +77,29 @@ class ApiGatewayApplicationTests {
     }
 
     @Test
-    void productServiceCreateProduct() {
-        webClient.post().uri("/api/v1/products").exchange()
+    void productServiceCreateProductAuthorized() {
+        webClient.mutateWith(mockJwt().authorities(List.of(
+                        new SimpleGrantedAuthority("ROLE_USER"),
+                        new SimpleGrantedAuthority("ROLE_ADMIN"))))
+                .post().uri("/api/v1/products").exchange()
                 .expectStatus().isCreated()
                 .expectBody(Boolean.class)
                 .consumeWith(result -> assertEquals(true, result.getResponseBody()));
+    }
+
+    @Test
+    void productServiceCreateProductUnauthorized() {
+        webClient.post().uri("/api/v1/products").exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void productServiceCreateProductForbidden() {
+        webClient.mutateWith(mockJwt().authorities(List.of(
+                        new SimpleGrantedAuthority("ROLE_USER"),
+                        new SimpleGrantedAuthority("ROLE_EMPLOYEE"))))
+                .post().uri("/api/v1/products").exchange()
+                .expectStatus().isForbidden();
     }
 
     // TODO: Investigate and fix 431 Error
@@ -78,27 +109,75 @@ class ApiGatewayApplicationTests {
 //                .expectStatus().isNotFound();
 //    }
 
+
     @Test
-    void cartServiceGetCart() {
+    void cartServiceGetCartAuthorized() {
         long userId = 1L;
-        webClient.get().uri("/api/v1/cart/" + userId).exchange()
+        webClient.mutateWith(mockJwt().authorities(List.of(
+                        new SimpleGrantedAuthority("ROLE_USER"))))
+                .get().uri("/api/v1/cart/" + userId).exchange()
                 .expectStatus().isOk()
                 .expectBody(Long.class)
                 .consumeWith(result -> assertEquals(userId, result.getResponseBody()));
     }
 
     @Test
-    void cartServiceAddItem() {
-        webClient.post().uri("/api/v1/cart/add").exchange()
+    void cartServiceGetCartUnauthorized() {
+        long userId = 1L;
+        webClient.get().uri("/api/v1/cart/" + userId).exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void cartServiceGetCartForbidden() {
+        long userId = 1L;
+        webClient.mutateWith(mockJwt())
+                .get().uri("/api/v1/cart/" + userId).exchange()
+                .expectStatus().isForbidden();
+    }
+
+    @Test
+    void cartServiceAddItemAuthorized() {
+        webClient.mutateWith(mockJwt().authorities(List.of(
+                        new SimpleGrantedAuthority("ROLE_USER"))))
+                .post().uri("/api/v1/cart/add").exchange()
                 .expectStatus().isOk()
                 .expectBody(Boolean.class)
                 .consumeWith(result -> assertEquals(true, result.getResponseBody()));
     }
 
     @Test
-    void cartServiceClearCart() {
-        webClient.delete().uri("/api/v1/cart/" + 1L).exchange()
+    void cartServiceAddItemUnauthorized() {
+        webClient.post().uri("/api/v1/cart/add").exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void cartServiceAddItemForbidden() {
+        webClient.mutateWith(mockJwt())
+                .post().uri("/api/v1/cart/add").exchange()
+                .expectStatus().isForbidden();
+    }
+
+    @Test
+    void cartServiceClearCartAuthorized() {
+        webClient.mutateWith(mockJwt().authorities(List.of(
+                        new SimpleGrantedAuthority("ROLE_USER"))))
+                .delete().uri("/api/v1/cart/" + 1L).exchange()
                 .expectStatus().isNoContent();
+    }
+
+    @Test
+    void cartServiceClearCartUnauthorized() {
+        webClient.delete().uri("/api/v1/cart/" + 1L).exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void cartServiceClearCartForbidden() {
+        webClient.mutateWith(mockJwt())
+                .delete().uri("/api/v1/cart/" + 1L).exchange()
+                .expectStatus().isForbidden();
     }
 
     @Test

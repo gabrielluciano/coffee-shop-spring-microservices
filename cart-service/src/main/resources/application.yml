@@ -11,3 +11,6 @@ eureka:
   client:
     serviceUrl:
       defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+
+jwks:
+  uri: http://localhost:8083/oauth2/jwks

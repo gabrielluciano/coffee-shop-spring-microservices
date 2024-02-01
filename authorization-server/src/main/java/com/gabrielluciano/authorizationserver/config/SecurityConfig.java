@@ -1,5 +1,6 @@
 package com.gabrielluciano.authorizationserver.config;
 
+import com.gabrielluciano.authorizationserver.security.SecurityUser;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -70,10 +71,14 @@ public class SecurityConfig {
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
         return context -> {
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
-                var authorities = context.getPrincipal().getAuthorities();
-                context.getClaims().claim("roles", authorities.stream()
-                        .map(auth -> auth.getAuthority().replace("ROLE_", ""))
-                        .collect(Collectors.toList()));
+                SecurityUser securityUser = (SecurityUser) context.getPrincipal().getPrincipal();
+                var authorities = securityUser.getAuthorities();
+                String userId = securityUser.getId().toString();
+                context.getClaims()
+                        .claim("userId", userId)
+                        .claim("roles", authorities.stream()
+                                .map(auth -> auth.getAuthority().replace("ROLE_", ""))
+                                .collect(Collectors.toList()));
             }
         };
     }

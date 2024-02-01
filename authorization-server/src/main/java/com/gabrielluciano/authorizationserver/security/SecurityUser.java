@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -49,5 +50,9 @@ public class SecurityUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return userCredentials.isEnabled();
+    }
+
+    public UUID getId() {
+        return userCredentials.getId();
     }
 }

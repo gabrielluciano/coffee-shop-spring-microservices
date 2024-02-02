@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "products")
@@ -43,4 +44,17 @@ public class Product {
 
     @NotNull
     private Boolean isAvailable;
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Product product = (Product) object;
+        return Objects.equals(id, product.id) && Objects.equals(name, product.name) && Objects.equals(description, product.description) && Objects.equals(price, product.price) && Objects.equals(isAvailable, product.isAvailable);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, price, isAvailable);
+    }
 }

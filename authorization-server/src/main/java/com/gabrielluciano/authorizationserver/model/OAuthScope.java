@@ -2,19 +2,17 @@ package com.gabrielluciano.authorizationserver.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.Objects;
 
 @Getter
-@Setter
 @RequiredArgsConstructor
 public class OAuthScope {
 
-    public static final String OPENID = "openid";
-    public static final String PROFILE = "profile";
-    public static final String EMAIL = "email";
-    public static final String ADDRESS = "address";
+    public static final OAuthScope OPENID = new OAuthScope("openid");
+    public static final OAuthScope PROFILE = new OAuthScope("profile");
+    public static final OAuthScope EMAIL = new OAuthScope("email");
+    public static final OAuthScope ADDRESS = new OAuthScope("address");
 
     private final String value;
 

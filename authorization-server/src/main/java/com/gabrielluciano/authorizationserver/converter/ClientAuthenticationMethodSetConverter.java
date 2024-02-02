@@ -5,6 +5,7 @@ import jakarta.persistence.Converter;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ public class ClientAuthenticationMethodSetConverter implements AttributeConverte
 
     @Override
     public String convertToDatabaseColumn(Set<ClientAuthenticationMethod> clientAuthenticationMethods) {
+        if (clientAuthenticationMethods == null) return "";
         return String.join(",", clientAuthenticationMethods.stream()
                 .map(ClientAuthenticationMethod::getValue)
                 .collect(Collectors.toSet()));
@@ -20,6 +22,7 @@ public class ClientAuthenticationMethodSetConverter implements AttributeConverte
 
     @Override
     public Set<ClientAuthenticationMethod> convertToEntityAttribute(String s) {
+        if (s == null || s.isEmpty()) return Collections.emptySet();
         return Arrays.stream(s.split(","))
                 .map(ClientAuthenticationMethod::new)
                 .collect(Collectors.toSet());

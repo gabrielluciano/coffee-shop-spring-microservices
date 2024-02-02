@@ -14,3 +14,7 @@ eureka:
 
 jwks:
   uri: http://localhost:8083/oauth2/jwks
+
+#logging:
+#  level:
+#    org.springframework.security: TRACE

@@ -82,9 +82,7 @@ class UserCredentialsRepositoryTest {
                 .roles(Set.of(Role.USER))
                 .enabled(true)
                 .build();
-
-        entityManager.persist(userCredentials);
-        entityManager.flush();
+        entityManager.persistAndFlush(userCredentials);
 
         UserCredentials userCredentialsFromDb = userCredentialsRepository.findById(userCredentials.getId())
                 .orElseThrow();
@@ -103,9 +101,7 @@ class UserCredentialsRepositoryTest {
                 .roles(Set.of(Role.USER))
                 .enabled(true)
                 .build();
-
-        entityManager.persist(userCredentials);
-        entityManager.flush();
+        entityManager.persistAndFlush(userCredentials);
 
         UserCredentials userCredentialsFromDb = userCredentialsRepository.findByEmail(userCredentials.getEmail())
                 .orElseThrow();
@@ -124,9 +120,7 @@ class UserCredentialsRepositoryTest {
                 .roles(Set.of(Role.USER))
                 .enabled(true)
                 .build();
-
-        entityManager.persist(userCredentials);
-        entityManager.flush();
+        entityManager.persistAndFlush(userCredentials);
 
         UserCredentials newUserCredentials = UserCredentials.builder()
                 .id(UUID.randomUUID())

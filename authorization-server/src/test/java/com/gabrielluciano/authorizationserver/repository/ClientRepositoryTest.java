@@ -87,7 +87,6 @@ class ClientRepositoryTest {
                 .authMethods(Set.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC))
                 .grantTypes(Set.of(AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.REFRESH_TOKEN))
                 .build();
-
         entityManager.persistAndFlush(client);
 
         Client clientFromDb = clientRepository.findById(client.getId()).orElseThrow();
@@ -107,7 +106,6 @@ class ClientRepositoryTest {
                 .authMethods(Set.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC))
                 .grantTypes(Set.of(AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.REFRESH_TOKEN))
                 .build();
-
         entityManager.persistAndFlush(client);
 
         Client clientFromDb = clientRepository.findByClientId(client.getClientId()).orElseThrow();
@@ -127,8 +125,7 @@ class ClientRepositoryTest {
                 .authMethods(Set.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC))
                 .grantTypes(Set.of(AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.REFRESH_TOKEN))
                 .build();
-
-        entityManager.persist(client);
+        entityManager.persistAndFlush(client);
 
         Client newClient = Client.builder()
                 .id(UUID.randomUUID())

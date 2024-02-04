@@ -2,8 +2,13 @@ package com.gabrielluciano.authorizationserver.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabrielluciano.authorizationserver.dto.UserRegistrationRequest;
+import com.gabrielluciano.authorizationserver.events.UserRegisteredEvent;
 import com.gabrielluciano.authorizationserver.model.Role;
 import com.gabrielluciano.authorizationserver.repository.UserCredentialsRepository;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,19 +18,30 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = {"eureka.client.enabled=false"})
 @AutoConfigureMockMvc
+@EmbeddedKafka(topics = "user-registration-events")
 class UserCredentialsControllerTest {
 
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
@@ -53,12 +69,16 @@ class UserCredentialsControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private EmbeddedKafkaBroker embeddedKafka;
+
     @BeforeEach
     void setUp() {
         userCredentialsRepository.deleteAll();
     }
 
     @Test
+    @DirtiesContext
     void shouldRegisterUser() throws Exception {
         UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest.builder()
                 .name("John")
@@ -75,6 +95,36 @@ class UserCredentialsControllerTest {
                 .andExpect(jsonPath("$.email").value(userRegistrationRequest.getEmail()))
                 .andExpect(jsonPath("$.roles.length()").value(1))
                 .andExpect(jsonPath("$.roles[0]").value(Role.USER.name()));
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldSendUserRegisteredEvent() throws Exception {
+        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps("testGroup", "true", embeddedKafka);
+        consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        ConsumerFactory<String, UserRegisteredEvent> cf = new DefaultKafkaConsumerFactory<>(consumerProps,
+                new StringDeserializer(), new JsonDeserializer<>(UserRegisteredEvent.class));
+        Consumer<String, UserRegisteredEvent> consumer = cf.createConsumer();
+        this.embeddedKafka.consumeFromAnEmbeddedTopic(consumer, "user-registration-events");
+
+        UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest.builder()
+                .name("Mark")
+                .email("mark@email.com")
+                .password("Passw0rd!")
+                .build();
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userRegistrationRequest)))
+                .andDo(print());
+
+        ConsumerRecords<String, UserRegisteredEvent> records = KafkaTestUtils.getRecords(consumer);
+        UserRegisteredEvent event = records.iterator().next().value();
+
+        assertThat(records.count()).isEqualTo(1);
+        assertThat(event.getEventType()).isEqualTo("UserRegisteredEvent");
+        assertThat(event.getName()).isEqualTo(userRegistrationRequest.getName());
     }
 
     @Test

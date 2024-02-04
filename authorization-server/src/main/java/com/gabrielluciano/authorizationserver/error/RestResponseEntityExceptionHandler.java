@@ -1,5 +1,6 @@
 package com.gabrielluciano.authorizationserver.error;
 
+import com.gabrielluciano.authorizationserver.exception.UserRegistrationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -48,6 +49,19 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .body(ErrorResponse.builder()
                         .error(convertConstraintViolationsToString(ex.getConstraintViolations()))
                         .status(HttpStatus.BAD_REQUEST.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @ExceptionHandler(UserRegistrationException.class)
+    protected ResponseEntity<ErrorResponse> handleUserRegistrationException(
+            UserRegistrationException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.builder()
+                        .error("Error completing the registration. Please try again later.")
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .path(request.getRequestURI())
                         .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
                         .build());

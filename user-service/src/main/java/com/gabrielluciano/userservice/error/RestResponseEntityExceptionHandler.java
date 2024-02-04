@@ -1,5 +1,6 @@
 package com.gabrielluciano.userservice.error;
 
+import com.gabrielluciano.userservice.exception.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -45,6 +46,19 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .body(ErrorResponse.builder()
                         .error(convertConstraintViolationsToString(ex.getConstraintViolations()))
                         .status(HttpStatus.BAD_REQUEST.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    protected ResponseEntity<ErrorResponse> handleUserNotFoundException(
+            UserNotFoundException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.builder()
+                        .error(ex.getMessage())
+                        .status(HttpStatus.NOT_FOUND.value())
                         .path(request.getRequestURI())
                         .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
                         .build());

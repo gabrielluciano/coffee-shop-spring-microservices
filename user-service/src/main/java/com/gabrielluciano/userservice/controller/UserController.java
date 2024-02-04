@@ -1,23 +1,24 @@
 package com.gabrielluciano.userservice.controller;
 
-import com.gabrielluciano.userservice.dto.SignupRequest;
 import com.gabrielluciano.userservice.dto.UserResponse;
 import com.gabrielluciano.userservice.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse signup(@Valid @RequestBody SignupRequest signupRequest) {
-        return userService.signup(signupRequest);
+    @GetMapping("{id}")
+    public UserResponse getUser(@PathVariable UUID id) {
+        return userService.getUser(id);
     }
 }

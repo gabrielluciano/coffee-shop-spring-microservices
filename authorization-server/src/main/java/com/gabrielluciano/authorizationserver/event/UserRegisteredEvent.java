@@ -1,4 +1,4 @@
-package com.gabrielluciano.authorizationserver.events;
+package com.gabrielluciano.authorizationserver.event;
 
 import lombok.*;
 

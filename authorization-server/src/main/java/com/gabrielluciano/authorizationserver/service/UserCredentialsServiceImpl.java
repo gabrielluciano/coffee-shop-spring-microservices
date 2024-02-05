@@ -2,7 +2,7 @@ package com.gabrielluciano.authorizationserver.service;
 
 import com.gabrielluciano.authorizationserver.dto.UserRegistrationRequest;
 import com.gabrielluciano.authorizationserver.dto.UserRegistrationResponse;
-import com.gabrielluciano.authorizationserver.events.UserRegisteredEvent;
+import com.gabrielluciano.authorizationserver.event.UserRegisteredEvent;
 import com.gabrielluciano.authorizationserver.exception.UserRegistrationException;
 import com.gabrielluciano.authorizationserver.model.Role;
 import com.gabrielluciano.authorizationserver.model.UserCredentials;
@@ -25,10 +25,9 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     private final KafkaTemplate<String, UserRegisteredEvent> kafkaTemplate;
 
     @Override
-    @Transactional
     public UserRegistrationResponse registerUser(UserRegistrationRequest userRegistrationRequest) {
         UserCredentials userCredentials = createUserCredentials(userRegistrationRequest);
-        userCredentialsRepository.save(userCredentials);
+        saveCredentials(userCredentials);
         UserRegisteredEvent userRegisteredEvent = createUserRegisteredEvent(userCredentials.getId(),
                 userRegistrationRequest);
         sendUserRegisteredEventOrThrowException(userRegisteredEvent);
@@ -49,6 +48,11 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
                 .roles(Set.of(Role.USER))
                 .enabled(true)
                 .build();
+    }
+
+    @Transactional
+    private void saveCredentials(UserCredentials userCredentials) {
+        userCredentialsRepository.save(userCredentials);
     }
 
     private UserRegisteredEvent createUserRegisteredEvent(UUID userId,

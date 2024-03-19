@@ -25,6 +25,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.concurrent.CompletableFuture;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -66,7 +67,7 @@ class UserCredentialsControllerTest {
     @BeforeEach
     void setUp() {
         BDDMockito.when(kafkaTemplate.send(ArgumentMatchers.any(), ArgumentMatchers.any()))
-                        .thenReturn(CompletableFuture.completedFuture(null));
+                .thenReturn(CompletableFuture.completedFuture(null));
         userCredentialsRepository.deleteAll();
     }
 
@@ -87,6 +88,29 @@ class UserCredentialsControllerTest {
                 .andExpect(jsonPath("$.email").value(userRegistrationRequest.getEmail()))
                 .andExpect(jsonPath("$.roles.length()").value(1))
                 .andExpect(jsonPath("$.roles[0]").value(Role.USER.name()));
+    }
+
+    @Test
+    void shouldNotRegisterUserWhenErrorSendingKafkaEvent() throws Exception {
+        BDDMockito.when(kafkaTemplate.send(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenThrow(new RuntimeException());
+
+        UserRegistrationRequest userRegistrationRequest = UserRegistrationRequest.builder()
+                .name("John")
+                .email("john@email.com")
+                .password("Passw0rd!")
+                .build();
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userRegistrationRequest)))
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.value()))
+                .andExpect(jsonPath("$.path").value("/register"));
+
+        long count = userCredentialsRepository.count();
+        assertThat(count).isZero();
     }
 
     @Test

@@ -25,6 +25,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     private final KafkaTemplate<String, UserRegisteredEvent> kafkaTemplate;
 
     @Override
+    @Transactional
     public UserRegistrationResponse registerUser(UserRegistrationRequest userRegistrationRequest) {
         UserCredentials userCredentials = createUserCredentials(userRegistrationRequest);
         saveCredentials(userCredentials);
@@ -50,7 +51,6 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
                 .build();
     }
 
-    @Transactional
     private void saveCredentials(UserCredentials userCredentials) {
         userCredentialsRepository.save(userCredentials);
     }

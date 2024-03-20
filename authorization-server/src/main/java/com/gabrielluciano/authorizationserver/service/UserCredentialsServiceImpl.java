@@ -8,6 +8,7 @@ import com.gabrielluciano.authorizationserver.model.Role;
 import com.gabrielluciano.authorizationserver.model.UserCredentials;
 import com.gabrielluciano.authorizationserver.repository.UserCredentialsRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     private final UserCredentialsRepository userCredentialsRepository;
@@ -53,6 +55,7 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
 
     private void saveCredentials(UserCredentials userCredentials) {
         userCredentialsRepository.save(userCredentials);
+        log.info("Successfully saved user credentials with id '{}'", userCredentials.getId());
     }
 
     private UserRegisteredEvent createUserRegisteredEvent(UUID userId,
@@ -68,11 +71,13 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
         try {
             sendUserRegisteredEvent(userRegisteredEvent);
         } catch (Exception ex) {
+            log.error("Error sending UserRegisteredEvent for user with id '{}'", userRegisteredEvent.getUserId());
             throw new UserRegistrationException(ex);
         }
     }
 
     private void sendUserRegisteredEvent(UserRegisteredEvent userRegisteredEvent) throws Exception {
         kafkaTemplate.send("user-registration-events", userRegisteredEvent).get();
+        log.info("Successfully sent UserRegisteredEvent for user with id '{}'", userRegisteredEvent.getUserId());
     }
 }

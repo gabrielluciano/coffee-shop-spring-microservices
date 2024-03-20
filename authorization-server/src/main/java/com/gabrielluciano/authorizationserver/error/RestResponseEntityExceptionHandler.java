@@ -4,6 +4,7 @@ import com.gabrielluciano.authorizationserver.exception.UserRegistrationExceptio
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Log4j2
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -86,8 +88,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
 
+        log.error("An unexpected error happened", ex);
         ServletWebRequest servletWebRequest = (ServletWebRequest) request;
-
         return ResponseEntity.status(statusCode)
                 .body(ErrorResponse.builder()
                         .error(ex.getMessage())

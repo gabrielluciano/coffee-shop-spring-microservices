@@ -3,6 +3,7 @@ package com.gabrielluciano.authorizationserver.service;
 import com.gabrielluciano.authorizationserver.dto.UserRegistrationRequest;
 import com.gabrielluciano.authorizationserver.dto.UserRegistrationResponse;
 import com.gabrielluciano.authorizationserver.event.UserRegisteredEvent;
+import com.gabrielluciano.authorizationserver.exception.UniqueConstraintViolationException;
 import com.gabrielluciano.authorizationserver.exception.UserRegistrationException;
 import com.gabrielluciano.authorizationserver.model.Role;
 import com.gabrielluciano.authorizationserver.model.UserCredentials;
@@ -29,18 +30,27 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
     @Override
     @Transactional
     public UserRegistrationResponse registerUser(UserRegistrationRequest userRegistrationRequest) {
+        findUserByEmailAndThrowExceptionIfFound(userRegistrationRequest.getEmail());
         UserCredentials userCredentials = createUserCredentials(userRegistrationRequest);
-        saveCredentials(userCredentials);
+        userCredentialsRepository.save(userCredentials);
         UserRegisteredEvent userRegisteredEvent = createUserRegisteredEvent(userCredentials.getId(),
                 userRegistrationRequest);
         sendUserRegisteredEventOrThrowException(userRegisteredEvent);
 
+        log.info("Successfully saved user credentials with id '{}'", userCredentials.getId());
         return UserRegistrationResponse.builder()
                 .id(userCredentials.getId())
                 .name(userRegistrationRequest.getName())
                 .email(userCredentials.getEmail())
                 .roles(userCredentials.getRoles())
                 .build();
+    }
+
+    private void findUserByEmailAndThrowExceptionIfFound(String email) {
+        userCredentialsRepository.findByEmail(email)
+                .ifPresent(u -> {
+                    throw new UniqueConstraintViolationException("Email already registered");
+                });
     }
 
     private UserCredentials createUserCredentials(UserRegistrationRequest request) {
@@ -51,11 +61,6 @@ public class UserCredentialsServiceImpl implements UserCredentialsService {
                 .roles(Set.of(Role.USER))
                 .enabled(true)
                 .build();
-    }
-
-    private void saveCredentials(UserCredentials userCredentials) {
-        userCredentialsRepository.save(userCredentials);
-        log.info("Successfully saved user credentials with id '{}'", userCredentials.getId());
     }
 
     private UserRegisteredEvent createUserRegisteredEvent(UUID userId,

@@ -7,6 +7,7 @@ import com.gabrielluciano.productservice.exception.UniqueConstraintViolationExce
 import com.gabrielluciano.productservice.model.Product;
 import com.gabrielluciano.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -30,6 +32,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
         findProductByNameAndThrowExceptionIfFound(productCreateRequest.getName());
         Product product = productRepository.save(productCreateRequest.toProduct());
+        log.info("Successfully created product with id '{}' and name '{}'", product.getId(), product.getName());
         return ProductResponse.fromProduct(product);
     }
 

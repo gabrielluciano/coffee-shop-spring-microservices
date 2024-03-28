@@ -70,7 +70,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                         .build());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(UniqueConstraintViolationException.class)
     protected ResponseEntity<ErrorResponse> handleUniqueConstraintViolationException(
             UniqueConstraintViolationException ex, HttpServletRequest request) {
 

@@ -119,6 +119,24 @@ class ProductRepositoryTest {
     }
 
     @Test
+    void shouldFindProductByName() {
+        Product product = Product.builder()
+                .name("Some Coffee")
+                .description("Description of the product")
+                .price(BigDecimal.valueOf(10.99))
+                .isAvailable(true)
+                .build();
+        entityManager.persistAndFlush(product);
+
+        Product productFromDb = productRepository.findByName(product.getName()).orElseThrow();
+
+        assertNotNull(productFromDb);
+        assertEquals(product.getId(), productFromDb.getId());
+        assertEquals(product.getName(), productFromDb.getName());
+        assertEquals(product, productFromDb);
+    }
+
+    @Test
     void shouldDeleteProductById() {
         Product product = Product.builder()
                 .name("Some Coffee")

@@ -3,6 +3,7 @@ package com.gabrielluciano.productservice.service;
 import com.gabrielluciano.productservice.dto.ProductCreateRequest;
 import com.gabrielluciano.productservice.dto.ProductResponse;
 import com.gabrielluciano.productservice.exception.ProductNotFoundException;
+import com.gabrielluciano.productservice.exception.UniqueConstraintViolationException;
 import com.gabrielluciano.productservice.model.Product;
 import com.gabrielluciano.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
+        findProductByNameAndThrowExceptionIfFound(productCreateRequest.getName());
         Product product = productRepository.save(productCreateRequest.toProduct());
         return ProductResponse.fromProduct(product);
+    }
+
+    private void findProductByNameAndThrowExceptionIfFound(String name) {
+        productRepository.findByName(name).ifPresent(p -> {
+            throw new UniqueConstraintViolationException("Name already exists");
+        });
     }
 
     @Override

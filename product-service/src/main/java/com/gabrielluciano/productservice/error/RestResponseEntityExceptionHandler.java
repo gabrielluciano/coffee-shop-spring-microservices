@@ -1,6 +1,7 @@
 package com.gabrielluciano.productservice.error;
 
 import com.gabrielluciano.productservice.exception.ProductNotFoundException;
+import com.gabrielluciano.productservice.exception.UniqueConstraintViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -58,6 +59,19 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .body(ErrorResponse.builder()
                         .error(ex.getMessage())
                         .status(HttpStatus.NOT_FOUND.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @ExceptionHandler(UniqueConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponse> handleUniqueConstraintViolationException(
+            UniqueConstraintViolationException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.builder()
+                        .error(ex.getMessage())
+                        .status(HttpStatus.CONFLICT.value())
                         .path(request.getRequestURI())
                         .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
                         .build());

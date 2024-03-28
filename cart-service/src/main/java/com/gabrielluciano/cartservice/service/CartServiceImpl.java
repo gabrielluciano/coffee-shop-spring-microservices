@@ -8,6 +8,7 @@ import com.gabrielluciano.cartservice.model.Cart;
 import com.gabrielluciano.cartservice.model.CartItem;
 import com.gabrielluciano.cartservice.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
@@ -48,6 +50,7 @@ public class CartServiceImpl implements CartService {
         findCartByUserId(userId).ifPresent(cart -> {
             cart.setDeletedAt(LocalDateTime.now(ZoneOffset.UTC));
             cartRepository.save(cart);
+            log.info("Successfully deleted cart with id '{}'", cart.getId());
         });
     }
 
@@ -70,12 +73,16 @@ public class CartServiceImpl implements CartService {
     private Cart updateAndSaveCart(Cart cart, CartRequest cartRequest) {
         Cart updatedCart = updateCartWithCartRequest(cart, cartRequest);
         cartRepository.save(updatedCart);
+        log.info("Successfully updated cart of id '{}' with product '{}' and quantity '{}'",
+                cart.getId(), cartRequest.getProductId(), cartRequest.getQuantity());
         return updatedCart;
     }
 
     private Cart createAndSaveCart(CartRequest cartRequest) {
         Cart newCart = createCartFromCartRequest(cartRequest);
-        cartRepository.save(newCart);
+        Cart savedCart = cartRepository.save(newCart);
+        log.info("Successfully created cart of id '{}' with product '{}' and quantity '{}'",
+                savedCart.getId(), cartRequest.getProductId(), cartRequest.getQuantity());
         return newCart;
     }
 

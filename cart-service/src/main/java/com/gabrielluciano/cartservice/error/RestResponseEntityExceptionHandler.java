@@ -3,6 +3,7 @@ package com.gabrielluciano.cartservice.error;
 import com.gabrielluciano.cartservice.exception.CartNotFoundException;
 import com.gabrielluciano.cartservice.exception.ProductNotFoundException;
 import com.gabrielluciano.cartservice.exception.ResourceNotFoundException;
+import com.gabrielluciano.cartservice.exception.ServiceUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,19 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .body(ErrorResponse.builder()
                         .error(ex.getMessage())
                         .status(HttpStatus.NOT_FOUND.value())
+                        .path(request.getRequestURI())
+                        .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
+                        .build());
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    protected ResponseEntity<ErrorResponse> handleServiceUnavailableException(
+            ServiceUnavailableException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.builder()
+                        .error(ex.getMessage())
+                        .status(HttpStatus.SERVICE_UNAVAILABLE.value())
                         .path(request.getRequestURI())
                         .timestamp(LocalDateTime.now(ZoneOffset.UTC).toString())
                         .build());

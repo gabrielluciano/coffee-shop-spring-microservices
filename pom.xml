@@ -18,5 +18,6 @@
         <module>api-gateway</module>
         <module>user-service</module>
         <module>authorization-server</module>
+        <module>order-service</module>
     </modules>
 </project>

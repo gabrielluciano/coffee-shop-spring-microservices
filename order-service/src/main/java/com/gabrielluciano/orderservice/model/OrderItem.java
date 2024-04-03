@@ -4,10 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -18,6 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class OrderItem implements Serializable {
 
     @EmbeddedId
@@ -26,16 +24,16 @@ public class OrderItem implements Serializable {
     @Column(nullable = false)
     private Integer quantity;
 
-    public OrderItem(Order order, Integer productId, Integer quantity) {
+    public OrderItem(Order order, Long productId, Integer quantity) {
         id = new OrderItemId(order, productId);
         this.quantity = quantity;
     }
 
-    public void setProductId(Integer productId) {
+    public void setProductId(Long productId) {
         id.setProductId(productId);
     }
 
-    public Integer getProductId() {
+    public Long getProductId() {
         return id.getProductId();
     }
 

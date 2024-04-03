@@ -21,7 +21,7 @@ public class OrderItemId implements Serializable {
     private Order order;
 
     @Column(nullable = false)
-    private Integer productId;
+    private Long productId;
 
     @Override
     public boolean equals(Object object) {
